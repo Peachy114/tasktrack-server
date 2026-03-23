@@ -1,7 +1,8 @@
-import { db } from '../index.js';
+import { db } from '../config/firebase.config.js';
 import { authMiddleware } from './authMiddleware.js';
 
 export async function adminMiddleware(req, res, next) {
+    //verify token from uath middleware
    authMiddleware(req, res, async () => {
         try {
             const { uid } = req.user;
@@ -14,7 +15,7 @@ export async function adminMiddleware(req, res, next) {
             const user = userSnap.data();
 
             if (user.role !== 'admin') {
-                return res.status(403).json({ error: 'Forbidden - Admins only' });
+                return res.status(403).json({ error: 'Forbidden' });
             }
 
             next(); //next kapag nalampasan na lahat.

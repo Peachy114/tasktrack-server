@@ -1,95 +1,186 @@
 # TaskTrack Server
- 
-A Node.js + Express backend for the TaskTrack project management application.
- 
+
+A Node.js + Express backend for the TaskTrack project management application built with Clean Architecture and SOLID principles.
+
 ## Tech Stack
- 
+
 - Node.js
 - Express
 - Firebase Admin SDK
 - Firestore Database
 - dotenv
- 
+
 ## Getting Started
- 
+
 ### Prerequisites
- 
+
 - Node.js v16+
 - npm
 - Firebase project setup
 - Firebase service account key
- 
+
 ### Installation
- 
+
 1. Clone the repository:
 ```bash
 git clone https://github.com/YOUR-USERNAME/tasktrack-server.git
 cd tasktrack-server
 ```
- 
+
 2. Install dependencies:
 ```bash
 npm install
 ```
- 
+
 3. Add your Firebase service account key:
    - Go to Firebase Console → Project Settings → Service Accounts
    - Generate a new private key
    - Rename it to `serviceAccountKey.json`
    - Place it in the root of `tasktrack-server/`
- 
+
 4. Create a `.env` file in the root directory:
 ```
 PORT=5000
 ```
- 
+
 5. Start the server:
 ```bash
 node index.js
 ```
- 
+
 Or with auto-restart using nodemon:
 ```bash
 npm run dev
 ```
- 
+
 Server will run on `http://localhost:5000`
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/users/register` | Auth | Register new user in Firestore |
-| GET | `/users/me` | Auth | Get current user profile |
+
+## Clean Architecture
+
+This project follows Clean Architecture and SOLID principles.
+
+```
+Request
+  → Route        (URL path + middleware)
+    → Controller (req/res handling + input sanitization)
+      → Service  (business logic)
+        → Model  (Firestore queries)
+          → Firestore
+```
+
+
+### SOLID Principles Applied
+| Principle | Implementation |
+|-----------|---------------|
+| Single Responsibility | Each class has one job — Model for DB, Service for logic, Controller for req/res |
+| Open/Closed | BaseModel and BaseController can be extended without modification |
+| Liskov Substitution | UserModel and TaskModel extend BaseModel and work as drop-in replacements |
+| Interface Segregation | UserController only handles users, TaskController only handles tasks |
+| Dependency Inversion | Firebase config injected via firebase.config.js |
+
+## API Endpoints
+
+### Users
+
+| Method | Endpoint | Middleware | Description |
+|--------|----------|------------|-------------|
+| POST | `/users/register` | authMiddleware | Register new user in Firestore |
+| GET | `/users/me` | authMiddleware | Get current user profile |
+| GET | `/users` | adminMiddleware | Get all users (admin only) |
+
+### Tasks
+
+| Method | Endpoint | Middleware | Description |
+|--------|----------|------------|-------------|
+| POST | `/tasks` | adminMiddleware | Create new task |
+| GET | `/tasks` | adminMiddleware | Get all tasks |
+| PUT | `/tasks/:taskId/assign` | adminMiddleware | Assign task to employee |
+| GET | `/tasks/my` | authMiddleware | Get logged-in user's tasks |
+| PUT | `/tasks/:taskId/status` | authMiddleware | Update task status |
+| GET | `/tasks/:taskId` | adminMiddleware | Get single task by ID |
 
 ## Middleware
- 
+
 ### authMiddleware
-- Verifies Firebase Bearer token
+- Verifies Firebase Bearer token from request headers
 - Attaches decoded user to `req.user`
 - Returns 401 if token is missing or invalid
- 
+
 ### adminMiddleware
-- First runs authMiddleware
-- Checks if user role is `admin` in Firestore
+- First runs authMiddleware to verify token
+- Fetches user document from Firestore
+- Checks if `user.role === 'admin'`
 - Returns 403 if user is not an admin
- 
-## Firestore Collections
- 
-### users
+
+## Base Classes
+
+### BaseController
+Reusable response methods for all controllers:
+
+```javascript
+this.sendSuccess(res, data, status)   // 200 response
+this.sendError(res, message, status)  // 500 response
+this.sendNotFound(res, message)       // 404 response
+this.sendForbidden(res, message)      // 403 response
+this.sendBadRequest(res, message)     // 400 response
 ```
+
+### BaseModel
+Reusable Firestore methods for all models:
+
+```javascript
+await this.findById(id)       // Get document by ID
+await this.findAll()          // Get all documents
+await this.create(data)       // Create new document
+await this.update(id, data)   // Update document
+await this.delete(id)         // Delete document
+await this.exists(id)         // Check if document exists
+```
+
+## Firestore Collections
+
+### users
+```json
 {
-  uid: "firebase_user_id",
-  email: "user@email.com",
-  role: "employee" | "admin"
+  "uid": "firebase_user_id",
+  "email": "user@email.com",
+  "role": "employee | admin"
 }
 ```
- 
+
+### tasks
+```json
+{
+  "title": "Task title",
+  "description": "Task description",
+  "status": "backlog | in_progress | done",
+  "assignedTo": "user_uid | null",
+  "assignedEmail": "user@email.com | null"
+}
+```
+
+## Input Sanitization
+
+All inputs are validated in controllers before reaching services:
+
+| Field | Validation |
+|-------|-----------|
+| title | Required, cannot be empty |
+| description | Required, cannot be empty |
+| status | Must be backlog, in_progress, or done |
+| userId | Required for task assignment |
+| userEmail | Required for task assignment |
+
 ## Security
- 
+
 - Never commit `serviceAccountKey.json`
 - Never commit `.env`
 - Both are already added to `.gitignore`
- 
+- All routes are protected with auth or admin middleware
+- Employees can only update their own assigned tasks
+
 ## Available Scripts
- 
+
 ```bash
 npm start    # Start server
 npm run dev  # Start with nodemon (auto-restart)
