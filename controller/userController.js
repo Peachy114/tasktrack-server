@@ -1,6 +1,8 @@
 import BaseController from './baseController.js';
 import userService from '../services/userService.js';
 
+//reminder
+//routes - controller - service - model - firestore
 class UserController extends BaseController {
     async registerUser(req, res) {
         try {

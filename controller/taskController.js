@@ -1,9 +1,12 @@
 import BaseController from './baseController.js';
 import taskService from '../services/taskService.js';
 
+//reminder
+//routes - controller - service - model - firestore
 class TaskController extends BaseController {
     async createTask(req, res) {
         try {
+            console.log('Controller reached');
             const { title, description } = req.body;
             if (!title || title.trim() === '') {
                 return this.sendBadRequest(res, 'Title is required');
@@ -17,6 +20,7 @@ class TaskController extends BaseController {
             );
             this.sendSuccess(res, result, 201);
         } catch (err) {
+             console.error('FULL ERROR:', err);
             this.sendError(res, err.message);
         }
     }

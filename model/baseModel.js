@@ -13,10 +13,7 @@ class BaseModel {
 
     async findAll() {
         const snap = await this.collection.get();
-        return snap.docs.map(doc => ({ 
-            id: doc.id, 
-            ...doc.data() 
-        }));
+        return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
 
     async create(data) {

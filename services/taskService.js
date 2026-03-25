@@ -4,7 +4,7 @@ import taskModel from "../model/taskModel.js";
 //routes - controller - service - model - firestore
 class TaskService {
     async createTask(title, description) {
-        const id = await taskModel.create(title, description);
+        const id = await taskModel.createTask(title, description);
         return { id, message: 'Task created!' };
     }
 
