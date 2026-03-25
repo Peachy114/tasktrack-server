@@ -1,5 +1,7 @@
 import BaseModel from "./baseModel.js";
 
+//reminder
+//routes - controller - service - model - firestore
 class TaskModel extends BaseModel {
     constructor() {
         super('tasks'); 
