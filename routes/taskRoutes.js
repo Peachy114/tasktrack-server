@@ -15,3 +15,4 @@ router.get('/my', authMiddleware, async ( req, res) => { taskController.getMyTas
 router.put('/:taskId/status', authMiddleware, async (req, res) => { taskController.updateStatus(req, res)}); //phase-3 for updating status
 
 export default router;
+

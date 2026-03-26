@@ -29,7 +29,7 @@ class TaskService {
         if (task.assignedTo !== uid) throw new Error('Forbidden');
         await taskModel.updateStatus(taskId, status);
         return { message: 'Status updated!' };
-    }
+    }  
 }
 
 export default new TaskService();

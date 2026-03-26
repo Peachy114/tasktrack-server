@@ -82,6 +82,8 @@ class TaskController extends BaseController {
             this.sendError(res, err.message);
         }
     }
+
+
 }
 
 export default new TaskController();

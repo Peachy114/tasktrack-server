@@ -19,6 +19,7 @@ class UserService {
     async getAllUsers() {
         return await userModel.findAll();
     }
+
 }
 
 export default new UserService();
