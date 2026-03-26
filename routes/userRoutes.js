@@ -10,6 +10,7 @@ router.post('/register', authMiddleware, async( req, res) => { userController.re
 router.get('/me', authMiddleware, async(req,res) => { userController.getMe(req, res)}); ////GET /users/me
 
 //ADMINN======================
-router.get('/', adminMiddleware, async (req, res, next) => userController.getAllUsers(req, res)); //Phase 2 - Admin Creation. ///GET /users - all users (admin only)
+router.get('/', adminMiddleware, async (req, res ) => userController.getAllUsers(req, res)); //Phase 2 - Admin Creation. ///GET /users - all users (admin only)
+
 
 export default router;

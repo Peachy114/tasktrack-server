@@ -36,6 +36,7 @@ class UserController extends BaseController {
             this.sendError(res, err.message);
         }
     }
+
 }
 
 export default new UserController();

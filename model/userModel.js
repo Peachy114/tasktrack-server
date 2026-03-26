@@ -6,7 +6,7 @@ class UserModel extends BaseModel {
     constructor() {
         super('users');
     }
-
+    
     async createUser(uid, email) {
         await this.collection.doc(uid).set({
             uid, email, role: 'employee'
