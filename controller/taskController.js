@@ -4,20 +4,23 @@ import taskService from '../services/taskService.js';
 class TaskController extends BaseController {
     async createTask(req, res) {
         try {
-            const { title, description } = req.body;
+            const { title, description } = req.body
+            const { email } = req.user
+
             if (!title || title.trim() === '') {
-                return this.sendBadRequest(res, 'Title is required');
+                return this.sendBadRequest(res, 'Title is required')
             }
             if (!description || description.trim() === '') {
-                return this.sendBadRequest(res, 'Description is required');
+                return this.sendBadRequest(res, 'Description is required')
             }
             const result = await taskService.createTask(
                 title.trim(), 
-                description.trim()
-            );
-            this.sendSuccess(res, result, 201);
+                description.trim(),
+                email 
+            )
+            this.sendSuccess(res, result, 201)
         } catch (err) {
-            this.sendError(res, err.message);
+            this.sendError(res, err.message)
         }
     }
 
@@ -79,6 +82,63 @@ class TaskController extends BaseController {
             this.sendSuccess(res, result);
         } catch (err) {
             this.sendError(res, err.message);
+        }
+    }
+
+    async getMonthlyStats(req, res) {
+        try {
+            const tasks = await taskService.getAllTasks()
+            const now = new Date()
+            const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+            const monthCount = 6
+
+            const labels = []
+            const pending = [], inProgress = [], completed = []
+
+            for (let i = monthCount - 1; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+                labels.push(MONTHS[d.getMonth()])
+
+                const updatedThisMonth = tasks.filter(t => {
+                    const date = t.updatedAt ? new Date(t.updatedAt) : null
+                    return date && date.getMonth() === d.getMonth() && date.getFullYear() === d.getFullYear()
+                })
+
+                const createdThisMonth = tasks.filter(t => {
+                    const date = t.createdAt ? new Date(t.createdAt) : null
+                    return date && date.getMonth() === d.getMonth() && date.getFullYear() === d.getFullYear()
+                })
+
+                pending.push(createdThisMonth.filter(t => t.status === 'backlog').length)
+                inProgress.push(updatedThisMonth.filter(t => t.status === 'in_progress').length)
+                completed.push(updatedThisMonth.filter(t => t.status === 'done').length)
+            }
+
+            this.sendSuccess(res, { labels, pending, inProgress, completed })
+        } catch (err) {
+            this.sendError(res, err.message)
+        }
+    }
+
+    async getTaskStats(req, res) {
+        try {
+            const tasks = await taskService.getAllTasks()
+            
+            const total          = tasks.length
+            const doneTasks      = tasks.filter(t => t.status === 'done').length
+            const activeTasks    = tasks.filter(t => t.status === 'in_progress').length
+            const pendingTasks   = tasks.filter(t => t.status === 'backlog').length
+            const completionRate = total > 0 ? Math.round((doneTasks / total) * 100) : 0
+
+            this.sendSuccess(res, {
+                total,
+                inProgress: activeTasks,
+                completed:  doneTasks,
+                pending:    pendingTasks,
+                completionRate,
+            })
+        } catch (err) {
+            this.sendError(res, err.message)
         }
     }
 

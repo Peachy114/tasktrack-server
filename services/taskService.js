@@ -32,9 +32,10 @@ class TaskService {
             return { message: 'Status unchanged' };
     }
 
-    await taskModel.updateStatus(taskId, status, task.title, userEmail);
-    return { message: 'Status updated!' };
-}
+        await taskModel.updateStatus(taskId, status, task.title, userEmail);
+        return { message: 'Status updated!' };
+    }
+
 
 }
 
