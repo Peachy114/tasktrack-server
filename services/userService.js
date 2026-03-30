@@ -1,12 +1,8 @@
 import userModel from "../model/userModel.js";
 
-//reminder
-//routes - controller - service - model - firestore
 class UserService {
     async getUserById(uid) {
-        const user = await userModel.findById(uid);
-        if (!user) throw new Error('User not found');
-        return user;
+        return userModel.findById(uid);
     }
 
     async createUser(uid, email) {
@@ -17,9 +13,8 @@ class UserService {
     }
 
     async getAllUsers() {
-        return await userModel.findAll();
+        return userModel.findAll();
     }
-
 }
 
 export default new UserService();

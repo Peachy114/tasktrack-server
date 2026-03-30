@@ -1,26 +1,26 @@
 import { db } from '../config/firebase.config.js';
 import { authMiddleware } from './authMiddleware.js';
+import { sendError } from '../utils/response.js';
 
 export async function adminMiddleware(req, res, next) {
-    //verify token from uath middleware
-   authMiddleware(req, res, async () => {
+    authMiddleware(req, res, async () => {
         try {
             const { uid } = req.user;
             const userSnap = await db.collection('users').doc(uid).get();
 
             if (!userSnap.exists) {
-                return res.status(404).json({ error: 'User not found' });
+                return sendError(res, 'User not found', 404);
             }
 
             const user = userSnap.data();
 
             if (user.role !== 'admin') {
-                return res.status(403).json({ error: 'Forbidden' });
+                return sendError(res, 'Forbidden', 403);
             }
 
-            next(); //next kapag nalampasan na lahat.
+            next();
         } catch (err) {
-            res.status(500).json({ error: err.message });
+            sendError(res, err.message);
         }
     });
 }
