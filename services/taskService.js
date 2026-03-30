@@ -23,13 +23,19 @@ class TaskService {
         return await taskModel.findByUserId(uid);
     }
 
-    async updateStatus(taskId, uid, status) {
+    async updateStatus(taskId, uid, status, userEmail) {
         const task = await taskModel.findById(taskId);
         if (!task) throw new Error('Task not found');
         if (task.assignedTo !== uid) throw new Error('Forbidden');
-        await taskModel.updateStatus(taskId, status);
-        return { message: 'Status updated!' };
-    }  
+        
+        if (task.status === status) {
+            return { message: 'Status unchanged' };
+    }
+
+    await taskModel.updateStatus(taskId, status, task.title, userEmail);
+    return { message: 'Status updated!' };
+}
+
 }
 
 export default new TaskService();

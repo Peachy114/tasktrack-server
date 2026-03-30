@@ -3,22 +3,36 @@ import { db } from "../config/firebase.config.js";
 class BaseModel {
     constructor(collectionName) {
         this.collection = db.collection(collectionName);
+        this.db = db;
     }
 
     async findById(id) {
-        const snap = await this.collection.doc(id).get();
+    const snap = await this.collection.doc(id).get();
         if (!snap.exists) return null;
-        return { id: snap.id, ...snap.data() };
+        const d = { id: snap.id, ...snap.data() }
+        if (d.createdAt?.toDate) d.createdAt = d.createdAt.toDate().toISOString()
+        if (d.updatedAt?.toDate) d.updatedAt = d.updatedAt.toDate().toISOString()
+        return d
     }
 
     async findAll() {
-        const snap = await this.collection.get();
-        return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    }
+    const snap = await this.collection.get();
+    return snap.docs.map(doc => {
+        const d = { id: doc.id, ...doc.data() }
+        if (d.createdAt?.toDate) d.createdAt = d.createdAt.toDate().toISOString()
+        if (d.updatedAt?.toDate) d.updatedAt = d.updatedAt.toDate().toISOString()
+        return d
+    });
+}
 
     async create(data) {
         const ref = await this.collection.add(data);
-        return ref.id;
+        return { id: ref.id, ...data };
+    }
+
+    async createWithId(id, data) {
+        await this.collection.doc(id).set(data);
+        return { id, ...data };
     }
 
     async update(id, data) {

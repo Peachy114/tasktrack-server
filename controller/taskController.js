@@ -1,12 +1,9 @@
 import BaseController from './baseController.js';
 import taskService from '../services/taskService.js';
 
-//reminder
-//routes - controller - service - model - firestore
 class TaskController extends BaseController {
     async createTask(req, res) {
         try {
-            console.log('Controller reached');
             const { title, description } = req.body;
             if (!title || title.trim() === '') {
                 return this.sendBadRequest(res, 'Title is required');
@@ -20,10 +17,10 @@ class TaskController extends BaseController {
             );
             this.sendSuccess(res, result, 201);
         } catch (err) {
-             console.error('FULL ERROR:', err);
             this.sendError(res, err.message);
         }
     }
+
 
     async getAllTasks(req, res) {
         try {
@@ -33,6 +30,7 @@ class TaskController extends BaseController {
             this.sendError(res, err.message);
         }
     }
+
 
     async assignTask(req, res) {
         try {
@@ -51,6 +49,7 @@ class TaskController extends BaseController {
         }
     }
 
+
     async getMyTasks(req, res) {
         try {
             const { uid } = req.user;
@@ -65,7 +64,7 @@ class TaskController extends BaseController {
         try {
             const { taskId } = req.params;
             const { status } = req.body;
-            const { uid } = req.user;
+            const { uid, email } = req.user; 
 
             if (!status) {
                 return this.sendBadRequest(res, 'Status is required');
@@ -76,7 +75,7 @@ class TaskController extends BaseController {
                 return this.sendBadRequest(res, 'Invalid status value');
             }
 
-            const result = await taskService.updateStatus(taskId, uid, status);
+            const result = await taskService.updateStatus(taskId, uid, status, email); 
             this.sendSuccess(res, result);
         } catch (err) {
             this.sendError(res, err.message);

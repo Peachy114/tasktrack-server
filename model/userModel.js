@@ -1,7 +1,5 @@
 import BaseModel from './baseModel.js';
 
-//reminder
-//routes - controller - service - model - firestore
 class UserModel extends BaseModel {
     constructor() {
         super('users');
