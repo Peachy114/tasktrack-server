@@ -36,7 +36,12 @@ class TaskService {
         return { message: 'Status updated!' };
     }
 
-
+    async editTask(taskId, title, description) {
+        const task = await taskModel.findById(taskId)
+        if (!task) throw new Error('Task not found')
+        await taskModel.update(taskId, { title, description })
+        return { message: 'Task updated!' }
+    }
 }
 
 export default new TaskService();

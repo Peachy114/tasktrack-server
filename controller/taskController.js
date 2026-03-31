@@ -142,6 +142,25 @@ class TaskController extends BaseController {
         }
     }
 
+    async editTask(req, res) {
+    try {
+            const { taskId } = req.params
+            const { title, description } = req.body
+            if (!title || title.trim() === '') {
+                return this.sendBadRequest(res, 'Title is required')
+            }
+            if (!description || description.trim() === '') {
+                return this.sendBadRequest(res, 'Description is required')
+            }
+            await taskService.editTask(taskId, title.trim(), description.trim())
+            this.sendSuccess(res, { message: 'Task updated!' })
+        } catch (err) {
+            this.sendError(res, err.message)
+        }
+    }
+
+    
+
 
 }
 
