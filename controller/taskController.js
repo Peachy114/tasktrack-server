@@ -90,7 +90,7 @@ class TaskController extends BaseController {
             const tasks = await taskService.getAllTasks()
             const now = new Date()
             const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-            const monthCount = 6
+            const monthCount = 9
 
             const labels = []
             const pending = [], inProgress = [], completed = []
